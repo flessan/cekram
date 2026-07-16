@@ -254,6 +254,31 @@ You can compile all cross-platform binaries, zip files, tarballs, and `SBOM.json
 make build
 ```
 
+### 📂 Repository Structure & Automated Release Pipelines
+```text
+cekram/
+├── README.md               # Comprehensive English documentation
+├── README.id.md            # Dokumentasi lengkap Bahasa Indonesia
+├── LICENSE                 # MIT License
+├── Makefile                # Cross-platform build & test automation (`make test`, `make build`)
+├── build_releases.sh       # Release artifact packager (`.tar.gz`, `.zip`, `SHA256SUMS`, `SBOM.json`)
+├── cekram.bat              # Universal Windows Batch script (psapi.dll integration)
+├── cekram.ps1              # Native Windows PowerShell script with colored UI & themes
+├── cekram.sh               # POSIX Shell script (Linux, macOS, Termux, BSD)
+├── cekram-lite.bat         # CekRAM Lite - Ultra-fast minimal Windows Batch script
+├── cekram-lite.ps1         # CekRAM Lite - Ultra-fast minimal Windows PowerShell script
+├── cekram-lite.sh          # CekRAM Lite - Ultra-fast minimal POSIX Shell script
+├── github-workflows-templates/ # CI/CD & Automated Release workflows (`ci.yml`, `release.yml`, `codeql.yml`)
+├── install.sh              # One-click global installer for Linux & macOS
+├── install.ps1             # One-click global installer for Windows
+├── python/                 # Python package (`cekram` CLI, `cekram.server`, and tests)
+├── node/                   # Node.js module (`npx cekram`)
+├── go/                     # Go module (`go run main.go` & `go/lite/main.go`)
+├── docker/                 # Docker and docker-compose configurations
+└── web/                    # Single-Page Web Dashboard (`index.html`, `style.css`, `app.js`)
+```
+> **GitHub Actions CI/CD Note**: To enable automatic GitHub Release pipelines, CI testing, and CodeQL security scanning in your fork without token scope errors, copy the files from `github-workflows-templates/` into `.github/workflows/`.
+
 ---
 
 ## ❓ FAQ & Troubleshooting

@@ -220,6 +220,31 @@ JSON Output & Watch      | Supported (✅)   | Supported (✅)
 ============================================================
 ```
 
+### 📂 Struktur Repositori & Pipa Otomatisasi GitHub Actions
+```text
+cekram/
+├── README.md               # Comprehensive English documentation
+├── README.id.md            # Dokumentasi lengkap Bahasa Indonesia
+├── LICENSE                 # MIT License
+├── Makefile                # Otomatisasi kompilasi dan pengujian (`make test`, `make build`)
+├── build_releases.sh       # Pembuat paket rilis (`.tar.gz`, `.zip`, `SHA256SUMS`, `SBOM.json`)
+├── cekram.bat              # Universal Windows Batch script (psapi.dll integration)
+├── cekram.ps1              # Native Windows PowerShell script dengan UI berwarna & tema
+├── cekram.sh               # POSIX Shell script (Linux, macOS, Termux, BSD)
+├── cekram-lite.bat         # CekRAM Lite - Ultra-fast minimal Windows Batch script
+├── cekram-lite.ps1         # CekRAM Lite - Ultra-fast minimal Windows PowerShell script
+├── cekram-lite.sh          # CekRAM Lite - Ultra-fast minimal POSIX Shell script
+├── github-workflows-templates/ # Template alur kerja CI/CD & Rilis Otomatis (`ci.yml`, `release.yml`, `codeql.yml`)
+├── install.sh              # Installer satu klik untuk Linux & macOS
+├── install.ps1             # Installer satu klik untuk Windows
+├── python/                 # Paket Python (`cekram` CLI, `cekram.server`, dan pengujian)
+├── node/                   # Modul Node.js (`npx cekram`)
+├── go/                     # Modul Go (`go run main.go` & `go/lite/main.go`)
+├── docker/                 # Konfigurasi Docker dan docker-compose
+└── web/                    # Single-Page Web Dashboard (`index.html`, `style.css`, `app.js`)
+```
+> **Catatan GitHub Actions CI/CD**: Untuk mengaktifkan pipa pengujian CI, rilis otomatis pada tag `v*`, serta pemindaian keamanan CodeQL di fork kamu tanpa kendala izin token GitHub App, salin isi dari `github-workflows-templates/` ke dalam `.github/workflows/`.
+
 ---
 
 ## ❓ FAQ & Troubleshooting
