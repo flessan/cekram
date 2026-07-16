@@ -1,0 +1,80 @@
+name: CekRAM CI
+
+on:
+  push:
+    branches: [ main, arena/* ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-python:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python Package
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ./python[full]
+          pip install pytest
+
+      - name: Run Python Tests
+        run: |
+          cd python
+          PYTHONPATH=. pytest -v tests/
+
+  test-node:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run Node Tests
+        run: |
+          cd node
+          npm test
+          node bin/cekram.js --oneshot --json
+
+  test-go:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.21"
+
+      - name: Build Go Full & Lite Editions
+        run: |
+          cd go
+          go build -v -o ../dist/cekram-go main.go
+          go build -v -o ../dist/cekram-lite-go lite/main.go
+          ../dist/cekram-go --oneshot --json
+          ../dist/cekram-lite-go --json
+
+  test-shell:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Syntax Check & Run POSIX Shell Scripts
+        run: |
+          bash -n cekram.sh
+          bash -n cekram-lite.sh
+          chmod +x cekram.sh cekram-lite.sh
+          ./cekram.sh --oneshot --json
+          ./cekram-lite.sh --json

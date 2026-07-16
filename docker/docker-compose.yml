@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  cekram-cli:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: cekram_cli
+    # Run in interactive/oneshot mode
+    command: ["--lang", "id", "--interval", "5"]
+    environment:
+      - TERM=xterm-256color
+
+  cekram-web:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: cekram_web
+    command: ["--server", "--port", "8080", "--lang", "en"]
+    ports:
+      - "8080:8080"
+    restart: unless-stopped

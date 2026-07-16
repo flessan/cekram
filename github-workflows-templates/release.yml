@@ -1,0 +1,138 @@
+name: CekRAM Release Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version_tag:
+        description: 'Version Tag (e.g. v1.1.0)'
+        required: true
+        default: 'v1.1.0'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.21"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Determine Version
+        id: version
+        run: |
+          if [ -n "${{ github.event.inputs.version_tag }}" ]; then
+            echo "TAG=${{ github.event.inputs.version_tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build Cross-Platform Artifacts
+        run: |
+          mkdir -p dist
+          
+          # Platforms to build
+          PLATFORMS="linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64"
+          
+          for PLAT in $PLATFORMS; do
+            GOOS=${PLAT%/*}
+            GOARCH=${PLAT#*/}
+            EXT=""
+            [ "$GOOS" = "windows" ] && EXT=".exe"
+            
+            echo "Building for $GOOS/$GOARCH..."
+            
+            # Build Full Go binary
+            CGO_ENABLED=0 GOOS=$GOOS GOARCH=$GOARCH go build -ldflags="-s -w" -o "dist/cekram-${GOOS}-${GOARCH}${EXT}" ./go/main.go
+            
+            # Build Lite Go binary
+            CGO_ENABLED=0 GOOS=$GOOS GOARCH=$GOARCH go build -ldflags="-s -w" -o "dist/cekram-lite-${GOOS}-${GOARCH}${EXT}" ./go/lite/main.go
+            
+            # Package Archives (.tar.gz and .zip)
+            if [ "$GOOS" = "windows" ]; then
+              cd dist && zip -q "cekram-${GOOS}-${GOARCH}.zip" "cekram-${GOOS}-${GOARCH}${EXT}" ../cekram.bat ../cekram.ps1 && cd ..
+              cd dist && zip -q "cekram-lite-${GOOS}-${GOARCH}.zip" "cekram-lite-${GOOS}-${GOARCH}${EXT}" ../cekram-lite.bat ../cekram-lite.ps1 && cd ..
+            else
+              cd dist && tar -czvf "cekram-${GOOS}-${GOARCH}.tar.gz" "cekram-${GOOS}-${GOARCH}${EXT}" -C .. cekram.sh -C .. python -C .. web && cd ..
+              cd dist && tar -czvf "cekram-lite-${GOOS}-${GOARCH}.tar.gz" "cekram-lite-${GOOS}-${GOARCH}${EXT}" -C .. cekram-lite.sh && cd ..
+            fi
+          done
+
+      - name: Generate SHA256 Cheksums & SBOM
+        run: |
+          cd dist
+          sha256sum *.zip *.tar.gz *.exe cekram-* > SHA256SUMS
+          
+          # Generate simple SBOM JSON
+          cat <<EOF > SBOM.json
+          {
+            "bomFormat": "CycloneDX",
+            "specVersion": "1.4",
+            "version": 1,
+            "metadata": {
+              "timestamp": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')",
+              "component": {
+                "type": "application",
+                "name": "cekram",
+                "version": "${{ steps.version.outputs.TAG }}"
+              }
+            },
+            "components": [
+              {"type": "application", "name": "cekram-full", "description": "Universal Super RAM Monitor & Auto-Purge Full Edition"},
+              {"type": "application", "name": "cekram-lite", "description": "Ultra-Fast Minimal Memory Monitor Lite Edition"}
+            ]
+          }
+          EOF
+          cd ..
+
+      - name: Generate CHANGELOG & Release Notes
+        run: |
+          cat <<EOF > RELEASE_NOTES.md
+          # ⚡ CekRAM ${{ steps.version.outputs.TAG }} - Universal Super RAM Monitor & Auto-Purge
+
+          ## 🚀 What's New in ${{ steps.version.outputs.TAG }}
+          - ✨ **Configuration File Support**: (`~/.cekram.yaml` & `%USERPROFILE%\.cekram.yaml`).
+          - 🌐 **Automatic Language Detection**: Smart system locale sensing (`ID` / `EN`).
+          - 📊 **Machine-Readable JSON Output**: (`--json` / `-j`).
+          - 🛡️ **Standardized Exit Codes**: (`0`=OK, `1`=Warning, `2`=Critical, `3`=Purge failed).
+          - 📝 **Event Logging**: (`--log memory.log`).
+          - 🔔 **Cross-Platform Desktop Notifications**: (`--notify` for Windows Toast, Linux notify-send, macOS osascript).
+          - ⏱️ **Watch Mode**: (`cekram watch` / `--watch`).
+          - ⚡ **Dry Run Mode**: (`--dry-run` / `-d`).
+          - 🎨 **Terminal UI Themes**: (`classic`, `minimal`, `nerd`).
+          - 🌐 **Expanded REST API & Prometheus Metrics**: (`GET /api/status`, `GET /api/history`, `POST /api/purge`, `GET /api/config`, `GET /metrics`).
+          - 🏎️ **CekRAM Lite (Ultra-Fast Minimal Edition)**: Pure native monitoring (`cekram-lite.sh`, `cekram-lite.bat`, `cekram-lite.ps1`, Go binary) with near-zero overhead.
+          - 📊 **Built-in Benchmarks**: (`cekram benchmark`).
+
+          ## 📦 Checksums
+          See attached \`SHA256SUMS\` and \`SBOM.json\`.
+          EOF
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.TAG }}
+          name: CekRAM ${{ steps.version.outputs.TAG }}
+          body_path: RELEASE_NOTES.md
+          files: |
+            dist/*.zip
+            dist/*.tar.gz
+            dist/SHA256SUMS
+            dist/SBOM.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

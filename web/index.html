@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEKRAM - Universal Super RAM Monitor & Auto-Purge</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <span class="pulse-dot"></span>
+                <h1 id="title-text">SUPER MONITOR - CEKRAM</h1>
+            </div>
+            <div class="header-controls">
+                <span id="subtitle-text" class="subtitle">Monitor & Auto-Purge Memori Universal</span>
+                <div class="lang-switch">
+                    <button id="btn-lang-id" class="lang-btn active" onclick="switchLang('id')">ID</button>
+                    <button id="btn-lang-en" class="lang-btn" onclick="switchLang('en')">EN</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="dashboard-grid">
+            <div class="card gauge-card">
+                <div class="gauge-header">
+                    <span id="label-percent">PERSENTASE</span>
+                    <span class="threshold-badge">Threshold > 80%</span>
+                </div>
+                <div class="gauge-body">
+                    <div class="progress-ring-container">
+                        <svg class="progress-ring" width="220" height="220">
+                            <circle class="progress-ring__circle-bg" stroke="#1f2937" stroke-width="16" fill="transparent" r="90" cx="110" cy="110"/>
+                            <circle id="gauge-circle" class="progress-ring__circle" stroke="#10b981" stroke-width="16" stroke-linecap="round" fill="transparent" r="90" cx="110" cy="110"/>
+                        </svg>
+                        <div class="gauge-text">
+                            <span id="val-percent">0%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="status-banner" id="status-banner">
+                    <span id="val-status">Aman Sentosa :3</span>
+                </div>
+            </div>
+
+            <div class="card metrics-card">
+                <h2>📊 Memory Breakdown</h2>
+                <div class="metrics-list">
+                    <div class="metric-item">
+                        <div class="metric-info">
+                            <span id="label-total">TOTAL RAM</span>
+                            <span class="metric-unit">MB</span>
+                        </div>
+                        <div class="metric-val" id="val-total">0</div>
+                    </div>
+
+                    <div class="metric-item">
+                        <div class="metric-info">
+                            <span id="label-used">RAM TERPAKAI</span>
+                            <span class="metric-unit">MB</span>
+                        </div>
+                        <div class="metric-val text-accent" id="val-used">0</div>
+                    </div>
+
+                    <div class="metric-item">
+                        <div class="metric-info">
+                            <span id="label-free">RAM BEBAS</span>
+                            <span class="metric-unit">MB</span>
+                        </div>
+                        <div class="metric-val text-success" id="val-free">0</div>
+                    </div>
+                </div>
+
+                <div class="purge-section">
+                    <button id="btn-purge" class="btn-purge" onclick="triggerPurge()">
+                        ⚡ PLONGKAN RAM SEKARANG
+                    </button>
+                    <p class="purge-hint" id="purge-hint">
+                        Klik untuk menjalankan EmptyWorkingSet / drop_caches secara langsung.
+                    </p>
+                </div>
+            </div>
+        </main>
+
+        <section class="code-banner">
+            <h3>🖥️ Run Anywhere (CLI / Online One-Liners)</h3>
+            <div class="code-tabs">
+                <button class="code-tab active" onclick="showCode('tab-posix', this)">Linux & macOS (cURL)</button>
+                <button class="code-tab" onclick="showCode('tab-win', this)">Windows (PowerShell)</button>
+                <button class="code-tab" onclick="showCode('tab-py', this)">Python</button>
+                <button class="code-tab" onclick="showCode('tab-node', this)">Node.js</button>
+            </div>
+            <div id="tab-posix" class="code-pane active">
+                <code>curl -fsSL https://raw.githubusercontent.com/flessan/cekram/main/cekram.sh | bash -s -- --lang=id --threshold=80</code>
+            </div>
+            <div id="tab-win" class="code-pane">
+                <code>irm https://raw.githubusercontent.com/flessan/cekram/main/cekram.ps1 | iex</code>
+            </div>
+            <div id="tab-py" class="code-pane">
+                <code>python3 -m pip install git+https://github.com/flessan/cekram.git#subdirectory=python && cekram --lang id</code>
+            </div>
+            <div id="tab-node" class="code-pane">
+                <code>npx github:flessan/cekram --lang=en</code>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>CEKRAM - Acer TravelMate & Universal System Monitor | <a href="https://github.com/flessan/cekram" target="_blank">flessan/cekram</a></p>
+        </footer>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
