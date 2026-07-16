@@ -1,4 +1,4 @@
-# ⚡ CEKRAM - Universal Super RAM Monitor & Auto-Purge
+# CEKRAM - Universal Super RAM Monitor & Auto-Purge
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Multi-Language: ID/EN](https://img.shields.io/badge/Language-ID%20|%20EN-00bcd4.svg)](#-automatic-language-detection)
@@ -31,14 +31,15 @@
 
 ---
 
-## 🚀 Quick Start (One-Liners)
+## Quick Start (One-Liners)
 
 ### 🐧 Linux & macOS via cURL (POSIX Shell)
 ```bash
 # Full Edition (Interactive loop or watch mode)
 curl -fsSL https://raw.githubusercontent.com/flessan/cekram/main/cekram.sh | bash -s -- --theme nerd --watch
-
-# CekRAM Lite (Ultra-fast minimal output)
+```
+```bash
+# CekRAM Static (Ultra-fast minimal output)
 curl -fsSL https://raw.githubusercontent.com/flessan/cekram/main/cekram-lite.sh | bash
 ```
 
@@ -46,8 +47,9 @@ curl -fsSL https://raw.githubusercontent.com/flessan/cekram/main/cekram-lite.sh 
 ```powershell
 # Run Full Edition online
 irm https://raw.githubusercontent.com/flessan/cekram/main/cekram.ps1 | iex
-
-# Run CekRAM Lite online
+```
+```powershell
+# Run CekRAM Static online
 irm https://raw.githubusercontent.com/flessan/cekram/main/cekram-lite.ps1 | iex
 ```
 
@@ -57,19 +59,21 @@ irm https://raw.githubusercontent.com/flessan/cekram/main/cekram-lite.ps1 | iex
 python3 -m pip install git+https://github.com/flessan/cekram.git#subdirectory=python
 cekram --theme nerd --watch
 cekram --server --port 8080
-
+```
+```bash
 # Node.js CLI via npx
 npx github:flessan/cekram --json --oneshot
-
+```
+```bash
 # Go Native Execution
 go run github.com/flessan/cekram/go@latest --threshold=85
 ```
 
 ---
 
-## 🏎️ CekRAM Lite vs Full Edition Comparison
+## CekRAM Static vs Full Edition Comparison
 
-**CekRAM Lite** (`cekram-lite`) is designed for maximum performance, minimal memory footprint, and high-frequency automation (cron jobs, CI/CD, embedded devices, and VPS containers).
+**CekRAM Static** (`cekram-lite`) is designed for maximum performance, minimal memory footprint, and high-frequency automation (cron jobs, CI/CD, embedded devices, and VPS containers).
 
 ```text
 TOTAL RAM : 16384 MB
@@ -206,7 +210,8 @@ Run CekRAM inside a Docker container:
 ```bash
 # Interactive Monitor
 docker run --rm -it flessan/cekram --lang=en --theme nerd --watch
-
+```
+```bash
 # Launch Web Dashboard Server
 docker run -d -p 8080:8080 flessan/cekram --server --port 8080 --lang=en
 ```
@@ -218,6 +223,8 @@ docker run -d -p 8080:8080 flessan/cekram --server --port 8080 --lang=en
 Measure startup latency, memory footprint, and overhead across implementations right from your terminal:
 ```bash
 cekram benchmark
+```
+```bash
 # Or in shell:
 ./cekram.sh benchmark
 ```
@@ -236,7 +243,7 @@ JSON Output & Watch      | Supported (✅)   | Supported (✅)
 
 ---
 
-## 📥 One-Click Installers & Build Matrix
+## 📥 One-Line & Build Matrix
 
 ### One-Click Global Installers
 - **Linux / macOS**:
@@ -298,4 +305,4 @@ Pass the `--dry-run` (`-d`) flag to any CekRAM script or API endpoint. It will s
 
 Distributed under the **MIT License**. See `LICENSE` for details.
 
-*Created with ❤️ by **flessan** and CekRAM Contributors.*
+*Created with ❤️ by **flessan** and CekRAM Contributors, yes Arena.*
