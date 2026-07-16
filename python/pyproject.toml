@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cekram"
+version = "1.0.0"
+description = "Universal Super RAM Monitor & Auto-Purge"
+readme = "../README.md"
+authors = [
+    { name = "flessan" }
+]
+license = { text = "MIT" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.7"
+dependencies = []
+
+[project.optional-dependencies]
+full = ["psutil>=5.8.0"]
+
+[project.scripts]
+cekram = "cekram.cli:main"

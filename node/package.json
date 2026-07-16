@@ -1,0 +1,31 @@
+{
+  "name": "cekram",
+  "version": "1.0.0",
+  "description": "Universal Super RAM Monitor & Auto-Purge (Multi-Platform, ID/EN)",
+  "main": "lib/monitor.js",
+  "bin": {
+    "cekram": "bin/cekram.js"
+  },
+  "scripts": {
+    "start": "node bin/cekram.js",
+    "test": "node -e \"require('./lib/monitor.js').getMetrics() && console.log('Node test passed.')\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flessan/cekram.git"
+  },
+  "keywords": [
+    "ram",
+    "memory",
+    "monitor",
+    "auto-purge",
+    "universal",
+    "cli"
+  ],
+  "author": "flessan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/flessan/cekram/issues"
+  },
+  "homepage": "https://github.com/flessan/cekram#readme"
+}
