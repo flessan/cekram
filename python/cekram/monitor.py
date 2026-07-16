@@ -2,6 +2,7 @@
 """
 Cross-platform memory monitor & auto-purge logic.
 Supports Windows, Linux, and macOS with or without external dependencies.
+Now with Dry Run support.
 """
 
 import os
@@ -126,23 +127,32 @@ def _get_ram_macos() -> Dict[str, Any]:
         return {"total_mb": 8192, "used_mb": 4096, "free_mb": 4096, "percent": 50.0}
 
 
-def purge_memory() -> Dict[str, str]:
+def purge_memory(dry_run: bool = False) -> Dict[str, Any]:
     """
     Triggers memory cleanup / cache drop depending on OS.
+    If dry_run is True, simulates the action without modifying system state.
     Returns status dict with 'success' boolean and 'detail' string.
     """
     os_name = platform.system()
+    if dry_run:
+        if os_name == "Windows":
+            return {"success": True, "detail": "[DRY-RUN] Would call psapi.dll EmptyWorkingSet on running processes.", "dry_run": True}
+        elif os_name == "Linux":
+            return {"success": True, "detail": "[DRY-RUN] Would run sync and echo 3 > /proc/sys/vm/drop_caches.", "dry_run": True}
+        elif os_name == "Darwin":
+            return {"success": True, "detail": "[DRY-RUN] Would run sync and system purge command.", "dry_run": True}
+        return {"success": True, "detail": "[DRY-RUN] Would sync buffers.", "dry_run": True}
+
     if os_name == "Windows":
         try:
             psapi = ctypes.WinDLL("psapi.dll")
             kernel32 = ctypes.WinDLL("kernel32.dll")
             # EnumProcesses and empty working set
-            return {"success": True, "detail": "Working sets flushed via Windows API."}
+            return {"success": True, "detail": "Working sets flushed via Windows API.", "dry_run": False}
         except Exception as e:
-            return {"success": False, "detail": f"Windows purge failed: {e}"}
+            return {"success": False, "detail": f"Windows purge failed: {e}", "dry_run": False}
 
     elif os_name == "Linux":
-        # First do sync
         try:
             subprocess.run(["sync"], check=False)
         except Exception:
@@ -152,34 +162,33 @@ def purge_memory() -> Dict[str, str]:
             try:
                 with open("/proc/sys/vm/drop_caches", "w") as f:
                     f.write("3\n")
-                return {"success": True, "detail": "Pagecaches and dentries/inodes dropped."}
+                return {"success": True, "detail": "Pagecaches and dentries/inodes dropped.", "dry_run": False}
             except Exception as e:
-                return {"success": False, "detail": str(e)}
+                return {"success": False, "detail": str(e), "dry_run": False}
         else:
-            # Check if passwordless sudo works
             try:
                 res = subprocess.run(
                     ["sudo", "-n", "sh", "-c", "sync && echo 3 > /proc/sys/vm/drop_caches"],
                     stdout=subprocess.PIPE, stderr=subprocess.PIPE
                 )
                 if res.returncode == 0:
-                    return {"success": True, "detail": "Pagecaches dropped via sudo."}
+                    return {"success": True, "detail": "Pagecaches dropped via sudo.", "dry_run": False}
             except Exception:
                 pass
-            return {"success": True, "detail": "Sync performed. (Run as root/sudo to drop full system pagecache)."}
+            return {"success": True, "detail": "Sync performed. (Run as root/sudo to drop full system pagecache).", "dry_run": False}
 
     elif os_name == "Darwin":
         try:
             subprocess.run(["sync"], check=False)
             if os.geteuid() == 0:
                 subprocess.run(["purge"], check=False)
-                return {"success": True, "detail": "Purged via system purge command."}
+                return {"success": True, "detail": "Purged via system purge command.", "dry_run": False}
             else:
                 res = subprocess.run(["sudo", "-n", "purge"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 if res.returncode == 0:
-                    return {"success": True, "detail": "Purged via sudo purge."}
-                return {"success": True, "detail": "Sync performed. (Run via sudo to execute full macOS purge)."}
+                    return {"success": True, "detail": "Purged via sudo purge.", "dry_run": False}
+                return {"success": True, "detail": "Sync performed. (Run via sudo to execute full macOS purge).", "dry_run": False}
         except Exception as e:
-            return {"success": False, "detail": str(e)}
+            return {"success": False, "detail": str(e), "dry_run": False}
 
-    return {"success": True, "detail": "Sync performed."}
+    return {"success": True, "detail": "Sync performed.", "dry_run": False}

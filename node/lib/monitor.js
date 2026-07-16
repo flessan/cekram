@@ -7,8 +7,6 @@ function getMetrics() {
     const totalMB = Math.round(os.totalmem() / (1024 * 1024));
     let freeMB = Math.round(os.freemem() / (1024 * 1024));
     
-    // On Linux, os.freemem() returns MemFree which is much smaller than MemAvailable.
-    // Let's check /proc/meminfo if available for exact accurate usage!
     if (os.platform() === 'linux' && fs.existsSync('/proc/meminfo')) {
         try {
             const content = fs.readFileSync('/proc/meminfo', 'utf8');
@@ -26,7 +24,7 @@ function getMetrics() {
                 const total = Math.round(memTotal / 1024);
                 const avail = Math.round(memAvailable / 1024);
                 const used = total - avail;
-                const percent = Number(((used / total) * 100).toFixed(2));
+                const percent = Number(((used / total) * 100).toFixed(0));
                 return { totalMB: total, usedMB: used, freeMB: avail, percent };
             }
         } catch (err) {
@@ -35,15 +33,17 @@ function getMetrics() {
     }
 
     const usedMB = totalMB - freeMB;
-    const percent = totalMB > 0 ? Number(((usedMB / totalMB) * 100).toFixed(2)) : 0;
+    const percent = totalMB > 0 ? Number(((usedMB / totalMB) * 100).toFixed(0)) : 0;
     return { totalMB, usedMB, freeMB, percent };
 }
 
-function purgeMemory() {
+function purgeMemory(dryRun = false) {
+    if (dryRun) {
+        return { success: true, detail: "[DRY-RUN] Would execute EmptyWorkingSet / drop_caches / purge.", dry_run: true };
+    }
     const platform = os.platform();
     try {
         if (platform === 'win32') {
-            // Windows PowerShell EmptyWorkingSet
             execSync(`powershell -NoProfile -Command "$code = '[DllImport(\\"psapi.dll\\")] public static extern bool EmptyWorkingSet(IntPtr hProcess);'; $type = Add-Type -MemberDefinition $code -Name 'MemUtil' -PassThru; Get-Process | ForEach-Object { try { $type::EmptyWorkingSet($_.Handle) | Out-Null } catch {} }"`, { stdio: 'ignore' });
             return { success: true, detail: "Working sets flushed via PowerShell." };
         } else if (platform === 'linux') {

@@ -1,12 +1,14 @@
 # ⚡ CEKRAM - Super Monitor & Auto-Purge RAM Universal
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Multi-Language: ID/EN](https://img.shields.io/badge/Language-ID%20|%20EN-00bcd4.svg)](./README.md)
-[![Platform: Windows | Linux | macOS](https://img.shields.io/badge/Platform-Windows%20|%20Linux%20|%20macOS-4caf50.svg)](./README.md)
-[![Web Dashboard](https://img.shields.io/badge/Dashboard-Live%20Web%20UI-ff9800.svg)](#-web-dashboard--api)
+[![Multi-Language: ID/EN](https://img.shields.io/badge/Language-ID%20|%20EN-00bcd4.svg)](#-deteksi-bahasa-otomatis)
+[![Platform Compatibility](https://img.shields.io/badge/Platform-Windows%20|%20Linux%20|%20macOS-4caf50.svg)](./README.md)
+[![CI Pipeline](https://github.com/flessan/cekram/actions/workflows/ci.yml/badge.svg)](https://github.com/flessan/cekram/actions/workflows/ci.yml)
+[![Release Pipeline](https://github.com/flessan/cekram/actions/workflows/release.yml/badge.svg)](https://github.com/flessan/cekram/actions/workflows/release.yml)
+[![Prometheus Metrics](https://img.shields.io/badge/Prometheus-Exposed%20%2Fmetrics-E6522C.svg)](#-rest-api--prometheus-metrics)
 
 > **"SUPER MONITOR - ACER TRAVELMATE & UNIVERSAL SYSTEM MONITOR"**  
-> Monitor RAM super ringan, tanpa dependensi ribet, dan lintas platform dengan fitur **Auto-Purge** (`EmptyWorkingSet` di Windows, `/proc/sys/vm/drop_caches` di Linux, dan `purge` di macOS). Bisa dijalankan langsung via **cURL**, **PowerShell**, **Batch**, **Python**, **Node.js**, **Go**, **Docker**, hingga **Web Dashboard interaktif**!
+> Monitor RAM super ringan, tanpa dependensi ribet, dan lintas platform dengan fitur **Auto-Purge** (`EmptyWorkingSet` di Windows, `/proc/sys/vm/drop_caches` di Linux, dan `purge` di macOS). Tersedia dalam **Edisi Full** (dengan Web UI, HTTP Server, Tema, dan REST API) serta **CekRAM Lite** (edisi ultra-cepat, minimal overhead, tanpa dependensi).
 
 ---
 
@@ -14,135 +16,222 @@
 
 ---
 
-## 🚀 Cara Cepat (Jalankan Langsung via One-Liners)
+## 📋 Daftar Isi
+- [🚀 Cara Cepat (One-Liners)](#-cara-cepat-one-liners)
+- [🏎️ Perbandingan CekRAM Lite vs Edisi Full](#-perbandingan-cekram-lite-vs-edisi-full)
+- [⚙️ Dukungan File Konfigurasi](#-dukungan-file-konfigurasi)
+- [🌐 Deteksi Bahasa Otomatis](#-deteksi-bahasa-otomatis)
+- [🛡️ Kode Keluar (Exit Codes) & Output JSON](#-kode-keluar-exit-codes--output-json)
+- [🎨 Tema Terminal & Mode Watch](#-tema-terminal--mode-watch)
+- [🖥️ REST API & Prometheus Metrics](#-rest-api--prometheus-metrics)
+- [🐳 Penggunaan Docker](#-penggunaan-docker)
+- [📊 Perintah Benchmark](#-perintah-benchmark)
+- [❓ FAQ & Troubleshooting](#-faq--troubleshooting)
 
-### 🐧 Linux & macOS (POSIX Shell via cURL)
-Jalankan langsung di terminal kamu tanpa perlu install manual:
+---
+
+## 🚀 Cara Cepat (One-Liners)
+
+### 🐧 Linux & macOS via cURL (POSIX Shell)
 ```bash
-# Default (Bahasa Indonesia ID)
-curl -fsSL https://raw.githubusercontent.com/flessan/cekram/main/cekram.sh | bash
+# Edisi Full (Mode interaktif atau watch)
+curl -fsSL https://raw.githubusercontent.com/flessan/cekram/main/cekram.sh | bash -s -- --theme nerd --watch
 
-# Jalankan dengan Threshold 80% dan refresh tiap 3 detik
-curl -fsSL https://raw.githubusercontent.com/flessan/cekram/main/cekram.sh | bash -s -- --lang=id --threshold=80 --interval=3
+# CekRAM Lite (Edisi ultra-cepat & minimalis)
+curl -fsSL https://raw.githubusercontent.com/flessan/cekram/main/cekram-lite.sh | bash -s -- --lang=id
 ```
 
-### 🪟 Windows (PowerShell)
-Jalankan langsung via PowerShell:
+### 🪟 Windows via PowerShell (`irm | iex`)
 ```powershell
-# Default (Bahasa Indonesia ID)
+# Jalankan Edisi Full secara online
 irm https://raw.githubusercontent.com/flessan/cekram/main/cekram.ps1 | iex
 
-# Jalankan dengan parameter kustom
-& { $(irm https://raw.githubusercontent.com/flessan/cekram/main/cekram.ps1) } -Lang id -Threshold 80 -Interval 3
+# Jalankan CekRAM Lite secara online
+irm https://raw.githubusercontent.com/flessan/cekram/main/cekram-lite.ps1 | iex
 ```
 
-### 🪟 Windows (Batch / `.bat`)
-Unduh dan jalankan script Batch universal (`cekram.bat`):
-```cmd
-cekram.bat --lang id --threshold 80
-```
-
-### 🐍 Python (CLI atau Web Server)
-Jalankan via Python atau install lewat `pip`:
+### 🐍 Python (`pip`) atau 📦 Node.js (`npx`) atau 🏎️ Go (`go run`)
 ```bash
-# Install via pip
+# Python CLI / Web Server
 python3 -m pip install git+https://github.com/flessan/cekram.git#subdirectory=python
+cekram --theme nerd --watch --lang id
+cekram --server --port 8080 --lang id
 
-# Jalankan di terminal
-cekram --lang id --threshold 80
+# Node.js CLI via npx
+npx github:flessan/cekram --json --oneshot --lang id
 
-# Atau buka Web Dashboard Server di port 8080!
+# Go Native Execution
+go run github.com/flessan/cekram/go@latest --threshold=85 --lang=id
+```
+
+---
+
+## 🏎️ Perbandingan CekRAM Lite vs Edisi Full
+
+**CekRAM Lite** (`cekram-lite`) dirancang khusus untuk kecepatan maksimal, penggunaan memori super minim, dan otomatisasi tinggi (cron jobs, CI/CD, perangkat embedded, dan container VPS).
+
+```text
+TOTAL RAM : 16384 MB
+RAM TERPAKAI : 6144 MB
+RAM BEBAS : 10240 MB
+PERSENTASE : 37%
+STATUS    : AMAN
+```
+
+### Tabel Perbandingan Fitur & Performa
+
+| Fitur | CekRAM Full | CekRAM Lite | Web Dashboard |
+| :--- | :---: | :---: | :---: |
+| **Waktu Startup / Latensi** | **Cepat** (~25ms Shell / ~3ms Go) | **Ultra Cepat** (~5ms Shell / ~0.8ms Go) | N/A |
+| **Penggunaan Memori Maksimal** | **Rendah** (~3.2MB Shell / ~4.5MB Go) | **Sangat Rendah** (~1.1MB Shell / ~1.8MB Go) | N/A |
+| **Auto Purge (`drop_caches`/`EmptyWorkingSet`)** | ✅ | ✅ | ✅ (Via `/api/purge`) |
+| **Mode Output JSON (`--json`)** | ✅ | ✅ | ✅ (`/api/status`) |
+| **Mode Watch (`--watch`)** | ✅ | ✅ | ✅ (Refresh UI Otomatis) |
+| **Multi-Bahasa (`ID` / `EN`)** | ✅ | ✅ | ✅ |
+| **Mode Dry Run (`--dry-run`)** | ✅ | ✅ | ✅ |
+| **Tema Terminal (`classic`/`minimal`/`nerd`)** | ✅ | ❌ (Teks Murni) | ❌ (Tema Gelap CSS) |
+| **Notifikasi Desktop & Logging** | ✅ | ❌ | ❌ |
+| **Server REST API & Prometheus (`/metrics`)** | ✅ (`--server`) | ❌ | ✅ |
+| **Profil Container Docker** | ✅ | ❌ | ✅ |
+
+> **Rekomendasi**: Gunakan **CekRAM Lite** (`cekram-lite.sh`, `cekram-lite.bat`, `cekram-lite.ps1`, atau `go/lite/main.go`) untuk pembuatan script, cron job, pipa CI/CD, dan lingkungan dengan sumber daya terbatas. Gunakan **CekRAM Full** (`cekram.sh`, `cekram.ps1`, Python/Node CLI) untuk tampilan pemantauan terminal yang interaktif atau Web Dashboard.
+
+---
+
+## ⚙️ Dukungan File Konfigurasi
+
+CekRAM secara otomatis mendeteksi file konfigurasi di direktori home pengguna:
+- **Linux / macOS**: `~/.cekram.yaml` atau `~/.cekram.json`
+- **Windows**: `%USERPROFILE%\.cekram.yaml` atau `%USERPROFILE%\.cekram.json`
+
+### Contoh `~/.cekram.yaml`:
+```yaml
+language: id
+threshold: 85
+interval: 3
+auto_purge: true
+theme: nerd
+log: /var/log/cekram_memory.log
+notify: true
+watch: true
+dry_run: false
+port: 8080
+```
+*Catatan: Argumen CLI (`--threshold 90`) selalu diprioritaskan di atas nilai dalam file konfigurasi.*
+
+---
+
+## 🌐 Deteksi Bahasa Otomatis
+
+CekRAM secara cerdas memeriksa lokalitas sistem (`$LC_ALL`, `$LC_MESSAGES`, `$LANG`, dan lokalitas Windows):
+- Jika lokalitas sistem dimulai dengan `id` (`id_ID`, `id-ID`), CekRAM otomatis menggunakan **Bahasa Indonesia (`id`)**.
+- Jika tidak, CekRAM menggunakan **Bahasa Inggris (`en`)**.
+- Bisa diganti kapan saja menggunakan flag `--lang id` atau `--lang en` (`-l id`).
+
+---
+
+## 🛡️ Kode Keluar (Exit Codes) & Output JSON
+
+CekRAM menggunakan kode keluar (exit codes) terstandarisasi yang sangat berguna untuk script otomatis:
+- **`0` (OK)** : RAM dalam kondisi aman (`< 60%`).
+- **`1` (Warning)** : Penggunaan RAM mulai tinggi (`>= 60%` dan `< threshold`).
+- **`2` (Critical)** : Penggunaan RAM mencapai atau melampaui batas `--threshold`.
+- **`3` (Purge Gagal)** : Pembersihan RAM dijalankan namun mengalami kendala izin atau sistem.
+
+### Mode JSON (`cekram --json`)
+Jalankan CekRAM atau CekRAM Lite dengan `--json` (`-j`) untuk output format mesin yang bersih:
+```bash
+cekram --oneshot --json
+```
+```json
+{
+  "total_ram_mb": 16384,
+  "used_ram_mb": 8241,
+  "free_ram_mb": 8143,
+  "usage_percent": 50,
+  "status": "safe"
+}
+```
+
+---
+
+## 🎨 Tema Terminal & Mode Watch
+
+### Tema Terminal (`--theme <theme>`)
+- **`classic`** : Header kotak klasik (`=== SUPER MONITOR ===`) + daftar status lengkap.
+- **`minimal`** : Ringkasan satu baris yang padat (`[*] RAM: 236 MB / 3939 MB (5.99%) | Free: 3703 MB | Status: safe`).
+- **`nerd`** : Gaya Cyberpunk/Nerd font dengan bar persentase visual (`󰍛 RAM: 4.95% [██░░░░░░░░] ⚡ SAFE :3`).
+
+### Mode Watch (`cekram watch` atau `--watch`)
+Berbeda dengan output biasa yang mencetak baris baru secara terus-menerus, mode `watch` memperbarui layar terminal di tempat (`\033[H\033[2J`), menciptakan dashboard live langsung di terminal kamu!
+
+---
+
+## 🖥️ REST API & Prometheus Metrics
+
+Jalankan server HTTP bawaan:
+```bash
 cekram --server --port 8080 --lang id
 ```
+### Endpoint REST yang Didukung:
+- **`GET /api/status?lang=id`** : Data statistik aktual dalam JSON beserta teks status.
+- **`GET /api/history`** : Riwayat pemantauan memori dari waktu ke waktu (sliding ring buffer).
+- **`POST /api/purge`** (dan `GET /api/purge`) : Menjalankan langsung `EmptyWorkingSet` atau `drop_caches` dan mengembalikan detail hasil.
+- **`GET /api/config`** : Menampilkan konfigurasi yang sedang aktif (`threshold`, `interval`, dll.).
+- **`POST /api/config`** : Memperbarui parameter konfigurasi secara langsung melalui body JSON (`{"threshold": 85, "theme": "nerd"}`).
 
-### 📦 Node.js (`npx`)
-Jalankan langsung via `npx` tanpa install global:
-```bash
-npx github:flessan/cekram --lang=id --threshold=80
-```
-
-### 🏎️ Go (`go run`)
-Jalankan langsung lewat Go:
-```bash
-go run github.com/flessan/cekram/go@latest --lang=id
-```
-
-### 🐳 Docker & Docker Compose
-Jalankan di dalam container:
-```bash
-# CLI Monitor Interaktif
-docker run --rm -it flessan/cekram --lang=id
-
-# Atau jalankan Web Dashboard
-docker run -d -p 8080:8080 flessan/cekram --server --port 8080 --lang=id
-```
-
----
-
-## ✨ Fitur Utama & Cara Kerja Auto-Purge
-
-Ketika penggunaan RAM melebihi batas (threshold, default `80%`), **CekRAM** otomatis menjalankan pembersihan memori tingkat sistem OS agar RAM kembali plong tanpa menutup aplikasi yang sedang aktif:
-
-1. **Windows (`EmptyWorkingSet`)**:
-   - Memanggil API `psapi.dll` (`EmptyWorkingSet`) via PowerShell/Batch/Python/Node/Go untuk mengosongkan working set RAM proses yang tidak aktif ke sistem buffer.
-2. **Linux (`/proc/sys/vm/drop_caches`)**:
-   - Menghitung akurat `MemAvailable` vs `MemTotal` dari `/proc/meminfo`. Jika sesak, menjalankan `sync` dan menulis `3` ke `/proc/sys/vm/drop_caches` (via root/sudo) untuk membersihkan pagecaches, dentries, dan inodes.
-3. **macOS (`purge`)**:
-   - Mengecek memori virtual dan menjalankan `sync` serta `purge`.
-
-### 🗣️ Bahasa UI (`ID` / `EN`)
-- **Indonesian (`id`)**:  
-  `STATUS : Aman Sentosa :3` | `[!] RAM SESAK! Menjalankan Auto-Purge... [+] Selesai! RAM sudah diplongkan.`
-- **English (`en`)**:  
-  `STATUS : Safe & Sound :3` | `[!] HIGH MEMORY USAGE! Running Auto-Purge... [+] Done! Memory cache synced & purged.`
-
----
-
-## 📥 Installer Satu Klik Global
-
-Ingin perintah `cekram` bisa dijalankan dari direktori mana saja di terminal kamu?
-
-#### Linux & macOS (`/usr/local/bin/cekram`)
-```bash
-curl -fsSL https://raw.githubusercontent.com/flessan/cekram/main/install.sh | bash
-```
-
-#### Windows (`$HOME\AppData\Local\Programs\CekRAM`)
-```powershell
-irm https://raw.githubusercontent.com/flessan/cekram/main/install.ps1 | iex
+### Prometheus Metrics (`GET /metrics`)
+Menyediakan metrik standar Prometheus untuk integrasi dengan Grafana:
+```text
+# HELP cekram_memory_total_bytes Total physical RAM in bytes
+# TYPE cekram_memory_total_bytes gauge
+cekram_memory_total_bytes 17179869184
+# HELP cekram_memory_used_bytes Used physical RAM in bytes
+# TYPE cekram_memory_used_bytes gauge
+cekram_memory_used_bytes 8641413120
+# HELP cekram_memory_available_bytes Free/Available physical RAM in bytes
+# TYPE cekram_memory_available_bytes gauge
+cekram_memory_available_bytes 8538456064
+# HELP cekram_memory_usage_percent RAM usage percentage
+# TYPE cekram_memory_usage_percent gauge
+cekram_memory_usage_percent 50.3
 ```
 
 ---
 
-## 📊 Argumen & Opsi CLI
+## 📊 Perintah Benchmark
 
-Semua implementasi (`cekram.sh`, `cekram.bat`, `cekram.ps1`, `python/`, `node/`, `go/`) menggunakan opsi yang sama dan mudah diingat:
-
-| Opsi / Flag | Alias | Default | Deskripsi |
-| :--- | :---: | :---: | :--- |
-| `--lang <id\|en>` | `-l` | `id` | Pilihan bahasa (`id` untuk Indonesia, `en` untuk Inggris) |
-| `--threshold <NUM>` | `-t` | `80` | Batas persentase (`0-100`) untuk menjalankan Auto-Purge |
-| `--interval <SEC>` | `-i` | `5` | Jeda waktu pembaruan tampilan (dalam detik) |
-| `--oneshot` | `-o` / `--once` | `false` | Jalankan sekali, tampilkan info RAM, lalu keluar |
-| `--purge-now` | - | `false` | Langsung jalankan pembersihan RAM dan keluar |
-| `--server` *(Python)* | `-s` | `false` | Jalankan server HTTP untuk Web Dashboard interaktif |
-| `--port <NUM>` *(Python)* | `-p` | `8080` | Port untuk server Web Dashboard |
-| `--help` | `-h` | - | Tampilkan bantuan |
+Ukur langsung perbandingan latensi startup dan penggunaan memori antara CekRAM Full dan Lite:
+```bash
+cekram benchmark
+# Atau di shell:
+./cekram.sh benchmark
+```
+```text
+============================================================
+ 🏎️ CekRAM Benchmark: Full vs Lite Edition
+============================================================
+Feature / Metric         | CekRAM Full      | CekRAM Lite     
+------------------------------------------------------------
+Startup / Scan Latency   | ~25 ms           | ~5 ms
+Peak Memory Usage        | ~3.2 MB          | ~1.1 MB
+Web Dashboard & API      | Supported (✅)   | None (❌)
+JSON Output & Watch      | Supported (✅)   | Supported (✅)
+============================================================
+```
 
 ---
 
-## 🖥️ Web Dashboard & API
+## ❓ FAQ & Troubleshooting
 
-Jalankan web server lokal:
-```bash
-python3 -m cekram.server --port 8080 --lang id
-```
-Buka browser ke `http://localhost:8080`:
-- **Gauge Ring Dinamis**: Indikator cincin persentase RAM yang berubah warna hijau (< 60%), kuning (60-80%), atau merah (> 80%).
-- **Tombol Purge Interaktif**: Klik `⚡ PLONGKAN RAM SEKARANG` untuk mengosongkan working set langsung dari browser kamu!
-- **REST API JSON**:
-  - `GET /api/status?lang=id` : Mendapatkan data statistik RAM aktual dalam format JSON.
-  - `GET /api/purge` : Menjalankan pembersihan RAM dan mengembalikan status JSON.
+### Q1: Mengapa Auto-Purge membutuhkan `sudo` / `root` di Linux & macOS?
+Membersihkan cache tingkat kernel (`echo 3 > /proc/sys/vm/drop_caches` di Linux atau `purge` di macOS) memerlukan hak akses root karena menyangkut manajemen memori sistem OS. Jika dijalankan tanpa hak akses sudo, CekRAM tetap aman menjalankan `sync` untuk menyinkronkan buffer file ke disk tanpa error.
+
+### Q2: Bagaimana cara kerja `EmptyWorkingSet` di Windows tanpa hak Administrator?
+Di Windows, `psapi.dll`'s `EmptyWorkingSet` mengembalikan halaman memori fisik proses yang sedang berjalan ke kumpulan memori virtual sistem. Pengguna biasa bisa membersihkan proses milik akun mereka sendiri, sementara instance Administrator dapat membersihkan seluruh proses sistem.
+
+### Q3: Bagaimana cara menguji pembersihan RAM tanpa mengubah status sistem?
+Gunakan flag `--dry-run` (`-d`). CekRAM akan menyimulasikan seluruh pengecekan batas sesak dan menampilkan tindakan apa yang seharusnya dijalankan (`[DRY-RUN] Would run sync && drop_caches`) tanpa menjalankan perintah penghapusan cache sesungguhnya.
 
 ---
 
